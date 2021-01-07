@@ -1,11 +1,12 @@
 import logging.config
 
 from auth_service.database import db, migrate
-from auth_service.extensions import cors, ma
+from auth_service.extensions import cors, ma, login_manager
 from flask import Flask
 
 from .config import config
 from auth_service.oauth2 import config_oauth
+from .services import user_service
 
 
 def create_app(config_name="default", settings_override=None):
@@ -76,13 +77,20 @@ def init_extensions(app):
         },
     )
     ma.init_app(app)
+    login_manager.init_app(app)
+
+    @login_manager.user_loader
+    def load_user(user_id):
+        return user_service.get(user_id)
 
 
 def init_blueprint(app):
     from auth_service.api import api as api_bp
     from auth_service.oauth import oauth2 as oauth_bp
     from auth_service.swagger import swagger_bp
+    from auth_service.views import main as main_bp
 
+    app.register_blueprint(main_bp, url_prefix="/")
     app.register_blueprint(api_bp, url_prefix="/api")
     app.register_blueprint(oauth_bp, url_prefix="/oauth")
     app.register_blueprint(swagger_bp, url_prefix="/swagger")
