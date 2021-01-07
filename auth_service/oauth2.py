@@ -42,6 +42,49 @@ def generate_user_info(user, scope):
     return UserInfo(sub=str(user.id), name=user.username)
 
 
+def create_authorization_code(client, grant_user, request):
+    code = gen_salt(48)
+    nonce = request.data.get("nonce")
+    client_id = client.client_id
+    redirect_uri = request.redirect_uri
+    scope = request.scope
+    user_id = grant_user.id
+
+    item = OAuth2AuthorizationCode(
+        code=code,
+        client_id=client_id,
+        redirect_uri=redirect_uri,
+        scope=scope,
+        user_id=user_id,
+        nonce=nonce,
+    )
+    db.session.add(item)
+    db.session.commit()
+    return code
+
+
+class AuthorizationCodeGrant(_AuthorizationCodeGrant):
+    def create_authorization_code(self, client, grant_user, request):
+        return create_authorization_code(client, grant_user, request)
+
+    def parse_authorization_code(self, code, client):
+        item = db.session.query(OAuth2AuthorizationCode).filter_by(
+            code=code, client_id=client.client_id
+        ).first()
+        if item and not item.is_expired():
+            return item
+
+    def delete_authorization_code(self, authorization_code):
+        try:
+            db.session.delete(authorization_code)
+            db.session.commit()
+        except Exception as e:
+            current_app.logger.exception(type(e))
+
+    def authenticate_user(self, authorization_code):
+        return user_service.get(authorization_code.user_id)
+
+
 class ResourceOwnerPasswordCredentialsGrant(_ResourceOwnerPasswordCredentialsGrant):
     def authenticate_user(self, username, password):
         return user_service.authenticate_and_get_user(username, password)
@@ -56,8 +99,7 @@ class RefreshTokenGrant(_RefreshTokenGrant):
 
     def authenticate_refresh_token(self, refresh_token):
         token = db.session.query(OAuth2Token).filter_by(refresh_token=refresh_token).first()
-        # if token and not token.is_refresh_token_expired():
-        if token:
+        if token and not token.is_refresh_token_expired():
             return token
 
     def authenticate_user(self, credential):
@@ -104,6 +146,14 @@ def config_oauth(app):
     query_client = create_query_client_func(db.session, OAuth2Client)
     save_token = create_save_token_func(db.session, OAuth2Token)
     authorization.init_app(app, query_client=query_client, save_token=save_token)
+
+    # support all openid grants
+    authorization.register_grant(
+        AuthorizationCodeGrant,
+        [
+            OpenIDCode(require_nonce=True),
+        ],
+    )
 
     authorization.register_grant(
         ResourceOwnerPasswordCredentialsGrant,

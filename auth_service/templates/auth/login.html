@@ -36,6 +36,9 @@
         <input type="text" id="inputEmail" name="email" class="form-control" placeholder="Email address" required autofocus>
         <label for="inputPassword" class="visually-hidden">Password</label>
         <input type="password" id="inputPassword" name="password" class="form-control" placeholder="Password" required>
+        {% if login_redirect %}
+            <input type="hidden" name="login_redirect" value="{{ login_redirect }}">
+        {% endif %}
         <div class="checkbox mb-3">
             <label>
                 <input type="checkbox" value="remember-me"> Remember me
