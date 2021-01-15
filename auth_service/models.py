@@ -1,3 +1,5 @@
+import time
+
 from authlib.integrations.sqla_oauth2 import (
     OAuth2ClientMixin,
     OAuth2TokenMixin,
@@ -38,3 +40,6 @@ class OAuth2Token(db.Model, OAuth2TokenMixin):
 
     def get_auth_time(self):
         return None
+
+    def is_refresh_token_expired(self):
+        return time.time() > (self.issued_at + self.expires_in + 60 * 24 * 30)

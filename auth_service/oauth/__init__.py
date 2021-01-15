@@ -4,7 +4,7 @@ from flask import (
 )
 from flask_login import current_user
 
-from auth_service.oauth2 import authorization
+from auth_service.oauth2 import authorization, RevocationEndpoint
 
 oauth2 = Blueprint("oauth2", __name__)
 
@@ -14,17 +14,23 @@ def issue_token():
     return authorization.create_token_response()
 
 
-@oauth2.route("/authorize", methods=["GET", ])
+@oauth2.route(
+    "/authorize",
+    methods=[
+        "GET",
+    ],
+)
 def authorize():
     user = current_user
     if user.is_anonymous:
         query_string = dict(
-            client_id=request.args.get('client_id', ''),
-            response_type=request.args.get('response_type', ''),
-            scope=request.args.get('scope', ''))
-        return_url = url_for('oauth2.authorize', **query_string)
+            client_id=request.args.get("client_id", ""),
+            response_type=request.args.get("response_type", ""),
+            scope=request.args.get("scope", ""),
+        )
+        return_url = url_for("oauth2.authorize", **query_string)
 
-        return redirect(url_for('main.login', next=return_url))
+        return redirect(url_for("main.login", next=return_url))
 
     try:
         grant = authorization.validate_consent_request(end_user=user)
@@ -34,19 +40,25 @@ def authorize():
     return render_template("authorize.html", user=user, grant=grant)
 
 
-@oauth2.route("/authorize", methods=["POST", ])
+@oauth2.route(
+    "/authorize",
+    methods=[
+        "POST",
+    ],
+)
 def handle_authorize():
     user = current_user
 
     if user.is_anonymous:
         query_string = dict(
-            client_id=request.args.get('client_id', ''),
-            response_type=request.args.get('response_type', ''),
-            scope=request.args.get('scope', ''))
+            client_id=request.args.get("client_id", ""),
+            response_type=request.args.get("response_type", ""),
+            scope=request.args.get("scope", ""),
+        )
 
-        return_url = url_for('oauth2.authorize', **query_string)
+        return_url = url_for("oauth2.authorize", **query_string)
 
-        return redirect(url_for('main.login', next=return_url))
+        return redirect(url_for("main.login", next=return_url))
 
     if request.form["confirm"]:
         grant_user = user
@@ -54,3 +66,8 @@ def handle_authorize():
         grant_user = None
 
     return authorization.create_authorization_response(grant_user=grant_user)
+
+
+@oauth2.route("/revoke", methods=["POST"])
+def revoke_token():
+    return authorization.create_endpoint_response(RevocationEndpoint.ENDPOINT_NAME)

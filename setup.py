@@ -12,7 +12,16 @@ with open('HISTORY.rst') as history_file:
 
 requirements = [
         'Click>=7.0', 
-        'ca-util==0.1.0',
+        'Flask==1.1.2',
+        'authlib',
+        'flask_migrate',
+        'flask_cors',
+        'flask_login',
+        'flask_marshmallow',
+        'flask_sqlalchemy',
+        'flask_swagger',
+        'requests',
+        'psycopg2-binary',
         ]
 
 setup_requirements = ['pytest-runner', ]

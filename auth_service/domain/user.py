@@ -1,10 +1,8 @@
 from dataclasses import dataclass
 
-from ca_util import DomainModel
-
 
 @dataclass
-class UserEntity(DomainModel):
+class UserEntity:
     id: int
     username: str
 

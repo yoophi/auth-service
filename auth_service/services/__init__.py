@@ -8,10 +8,10 @@ from auth_service.services.user.rest import UserService
 
 def get_repo():
     if "user_service" not in g:
-        if current_app.config.get('MOCK_USER_SERVICE'):
+        if current_app.config.get("MOCK_USER_SERVICE"):
             service = MockUserService()
         else:
-            endpoint = current_app.config.get('USER_API_URL')
+            endpoint = current_app.config.get("USER_API_URL")
             service = UserService(endpoint=endpoint)
 
         g.user_service = service

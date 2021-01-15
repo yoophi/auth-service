@@ -2,8 +2,14 @@ from auth_service.domain.user import UserEntity
 from auth_service.services.user.base import BaseUserService
 
 MOCK_USERS = [
-    UserEntity(id=1, username="john", ),
-    UserEntity(id=2, username="jane", ),
+    UserEntity(
+        id=1,
+        username="john",
+    ),
+    UserEntity(
+        id=2,
+        username="jane",
+    ),
 ]
 
 

@@ -16,6 +16,9 @@ from authlib.oidc.core.grants import (
     OpenIDHybridGrant as _OpenIDHybridGrant,
 )
 from authlib.oidc.core.grants.util import generate_id_token, is_openid_scope
+
+from authlib.oauth2.rfc7009 import RevocationEndpoint as _RevocationEndpoint
+
 from flask import current_app
 from werkzeug.security import gen_salt
 
@@ -32,9 +35,11 @@ DUMMY_JWT_CONFIG = {
 
 
 def exists_nonce(nonce, req):
-    exists = db.session.query(OAuth2AuthorizationCode).filter_by(
-        client_id=req.client_id, nonce=nonce
-    ).first()
+    exists = (
+        db.session.query(OAuth2AuthorizationCode)
+        .filter_by(client_id=req.client_id, nonce=nonce)
+        .first()
+    )
     return bool(exists)
 
 
@@ -68,9 +73,11 @@ class AuthorizationCodeGrant(_AuthorizationCodeGrant):
         return create_authorization_code(client, grant_user, request)
 
     def parse_authorization_code(self, code, client):
-        item = db.session.query(OAuth2AuthorizationCode).filter_by(
-            code=code, client_id=client.client_id
-        ).first()
+        item = (
+            db.session.query(OAuth2AuthorizationCode)
+            .filter_by(code=code, client_id=client.client_id)
+            .first()
+        )
         if item and not item.is_expired():
             return item
 
@@ -98,7 +105,14 @@ class RefreshTokenGrant(_RefreshTokenGrant):
         db.session.commit()
 
     def authenticate_refresh_token(self, refresh_token):
-        token = db.session.query(OAuth2Token).filter_by(refresh_token=refresh_token).first()
+        token = (
+            db.session.query(OAuth2Token)
+            .filter_by(
+                refresh_token=refresh_token,
+                revoked=False,
+            )
+            .first()
+        )
         if token and not token.is_refresh_token_expired():
             return token
 
@@ -163,6 +177,26 @@ class HybridGrant(_OpenIDHybridGrant):
         return generate_user_info(user, scope)
 
 
+class RevocationEndpoint(_RevocationEndpoint):
+    def query_token(self, token, token_type_hint, client):
+        q = db.session.query(OAuth2Token).filter_by(client_id=client.client_id)
+
+        if token_type_hint == "access_token":
+            return q.filter_by(access_token=token).first()
+        elif token_type_hint == "refresh_token":
+            return q.filter_by(refresh_token=token).first()
+        # without token_type_hint
+        item = q.filter_by(access_token=token).first()
+        if item:
+            return item
+        return q.filter_by(refresh_token=token).first()
+
+    def revoke_token(self, token):
+        token.revoked = True
+        db.session.add(token)
+        db.session.commit()
+
+
 authorization = AuthorizationServer()
 require_oauth = ResourceProtector()
 
@@ -197,6 +231,8 @@ def config_oauth(app):
     authorization.register_grant(ImplicitGrant)
 
     authorization.register_grant(HybridGrant)
+
+    authorization.register_endpoint(RevocationEndpoint)
 
     # protect resource
     bearer_cls = create_bearer_token_validator(db.session, OAuth2Token)

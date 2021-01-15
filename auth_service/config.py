@@ -10,7 +10,8 @@ DB_USER = os.environ.get("DB_USER", "oidc")
 DB_PASSWORD = os.environ.get("DB_PASSWORD", "secret11!")
 DB_DATABASE = os.environ.get("DB_DATABASE", "oidc")
 DB_ENGINE = os.environ.get("DB_ENGINE", "postgres")
-DB_SCHEME = "postgres+psycopg2"
+DB_SCHEME = "postgresql+psycopg2"
+
 
 if DB_ENGINE == "mysql":
     DB_SCHEME = "mysql+mysqlconnector"
@@ -29,7 +30,7 @@ class Config:
     SQLALCHEMY_DATABASE_URI = SQLALCHEMY_DATABASE_URI
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     OAUTH2_REFRESH_TOKEN_GENERATOR = True
-    MOCK_USER_SERVICE = bool(os.environ.get('MOCK_USER_SERVICE'))
+    MOCK_USER_SERVICE = bool(os.environ.get("MOCK_USER_SERVICE"))
 
     USER_API_URL = ""
 
