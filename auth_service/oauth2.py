@@ -1,3 +1,5 @@
+import time
+
 from authlib.integrations.flask_oauth2 import AuthorizationServer, ResourceProtector
 from authlib.integrations.sqla_oauth2 import (
     create_query_client_func,
@@ -10,6 +12,7 @@ from authlib.oauth2.rfc6749.grants import (
     RefreshTokenGrant as _RefreshTokenGrant,
 )
 from authlib.oauth2.rfc7009 import RevocationEndpoint as _RevocationEndpoint
+from authlib.oauth2.rfc7662 import IntrospectionEndpoint as _IntrospectionEndpoint
 from authlib.oidc.core import UserInfo
 from authlib.oidc.core.grants import (
     OpenIDCode as _OpenIDCode,
@@ -205,6 +208,43 @@ class RevocationEndpoint(_RevocationEndpoint):
         db.session.commit()
 
 
+class IntrospectionEndpoint(_IntrospectionEndpoint):
+    def introspect_token(self, token: OAuth2Token):
+        active = self.is_token_active(token)
+        user = db.session.query(User).get(token.user_id)
+        return {
+            "active": active,
+            "client_id": token.client_id,
+            "token_type": token.token_type,
+            "username": user.email,
+            "scope": token.get_scope(),
+            "sub": user.id,
+            "aud": token.client_id,
+            "iss": "https://server.example.com/",
+            "exp": (token.issued_at + token.expires_in),
+            "iat": token.issued_at,
+        }
+
+    def query_token(self, token, token_type_hint, client):
+        if token_type_hint == "access_token":
+            token = db.session.query(OAuth2Token).filter_by(access_token=token).first()
+        elif token_type_hint == "refresh_token":
+            token = db.session.query(OAuth2Token).filter_by(refresh_token=token).first()
+        else:
+            # without token_type_hint
+            token = db.session.query(OAuth2Token).filter_by(access_token=token).first()
+            if not token:
+                token = (
+                    db.session.query(OAuth2Token).filter_by(refresh_token=token).first()
+                )
+        if token:
+            if token.client_id == client.client_id:
+                return token
+
+    def is_token_active(self, token: OAuth2Token) -> bool:
+        return not token.revoked and token.get_expires_at() > time.time()
+
+
 authorization = AuthorizationServer()
 require_oauth = ResourceProtector()
 
@@ -241,6 +281,8 @@ def config_oauth(app):
     authorization.register_grant(HybridGrant)
 
     authorization.register_endpoint(RevocationEndpoint)
+
+    authorization.register_endpoint(IntrospectionEndpoint)
 
     # protect resource
     bearer_cls = create_bearer_token_validator(db.session, OAuth2Token)

@@ -9,7 +9,7 @@ from flask import (
 )
 from flask_login import current_user
 
-from auth_service.oauth2 import authorization, RevocationEndpoint
+from auth_service.oauth2 import authorization, RevocationEndpoint, IntrospectionEndpoint
 
 oauth2 = Blueprint("oauth2", __name__)
 
@@ -76,3 +76,8 @@ def handle_authorize():
 @oauth2.route("/revoke", methods=["POST"])
 def revoke_token():
     return authorization.create_endpoint_response(RevocationEndpoint.ENDPOINT_NAME)
+
+
+@oauth2.route("/introspect", methods=["POST"])
+def introspect_token():
+    return authorization.create_endpoint_response(IntrospectionEndpoint.ENDPOINT_NAME)
