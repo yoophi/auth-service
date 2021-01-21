@@ -9,6 +9,7 @@ from authlib.oauth2.rfc6749.grants import (
     ResourceOwnerPasswordCredentialsGrant as _ResourceOwnerPasswordCredentialsGrant,
     RefreshTokenGrant as _RefreshTokenGrant,
 )
+from authlib.oauth2.rfc7009 import RevocationEndpoint as _RevocationEndpoint
 from authlib.oidc.core import UserInfo
 from authlib.oidc.core.grants import (
     OpenIDCode as _OpenIDCode,
@@ -16,15 +17,12 @@ from authlib.oidc.core.grants import (
     OpenIDHybridGrant as _OpenIDHybridGrant,
 )
 from authlib.oidc.core.grants.util import generate_id_token, is_openid_scope
-
-from authlib.oauth2.rfc7009 import RevocationEndpoint as _RevocationEndpoint
-
 from flask import current_app
 from werkzeug.security import gen_salt
 
 from auth_service.database import db
-from auth_service.models import OAuth2Client, OAuth2AuthorizationCode, OAuth2Token
-from auth_service.services import user_service
+from auth_service.models import OAuth2Client, OAuth2AuthorizationCode, OAuth2Token, User
+from auth_service.user import user_manager
 
 DUMMY_JWT_CONFIG = {
     "key": "secret-key",
@@ -89,12 +87,22 @@ class AuthorizationCodeGrant(_AuthorizationCodeGrant):
             current_app.logger.exception(type(e))
 
     def authenticate_user(self, authorization_code):
-        return user_service.get(authorization_code.user_id)
+        return db.session.query(User).get(authorization_code.user_id)
 
 
 class ResourceOwnerPasswordCredentialsGrant(_ResourceOwnerPasswordCredentialsGrant):
     def authenticate_user(self, username, password):
-        return user_service.authenticate_and_get_user(username, password)
+        user = (
+            db.session.query(User)
+            .filter(
+                User.email == username,
+            )
+            .first()
+        )
+        if user is not None and user_manager.verify_password(password, user.password):
+            return user
+
+        return None
 
 
 class RefreshTokenGrant(_RefreshTokenGrant):
@@ -117,7 +125,7 @@ class RefreshTokenGrant(_RefreshTokenGrant):
             return token
 
     def authenticate_user(self, credential):
-        return user_service.get(credential.user_id)
+        return db.session.query(User).get(credential.user_id)
 
 
 class OpenIDCode(_OpenIDCode):

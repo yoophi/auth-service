@@ -1,12 +1,14 @@
 import logging.config
+from datetime import datetime
 
-from auth_service.database import db, migrate
-from auth_service.extensions import cors, ma, login_manager
 from flask import Flask
 
-from .config import config
+from auth_service.database import db, migrate
+from auth_service.extensions import cors, ma
 from auth_service.oauth2 import config_oauth
-from .services import user_service
+from .config import config
+from .models import User, Role
+from .user import user_manager
 
 
 def create_app(config_name="default", settings_override=None):
@@ -18,12 +20,16 @@ def create_app(config_name="default", settings_override=None):
     app_config.init_app(app)
 
     init_db(app)
+
+    user_manager.init_app(app, db, User)
+
     init_extensions(app)
 
     if settings_override:
         app.config.update(settings_override)
 
     init_blueprint(app)
+    init_commands(app)
     config_oauth(app)
 
     return app
@@ -77,11 +83,6 @@ def init_extensions(app):
         },
     )
     ma.init_app(app)
-    login_manager.init_app(app)
-
-    @login_manager.user_loader
-    def load_user(user_id):
-        return user_service.get(user_id)
 
 
 def init_blueprint(app):
@@ -94,3 +95,35 @@ def init_blueprint(app):
     app.register_blueprint(api_bp, url_prefix="/api")
     app.register_blueprint(oauth_bp, url_prefix="/oauth")
     app.register_blueprint(swagger_bp, url_prefix="/swagger")
+
+
+def init_commands(app):
+    @app.cli.command("init-db")
+    def init_database():
+        db.create_all()
+
+        # Create 'member@example.com' user with no roles
+        if (
+            not db.session.query(User)
+            .filter(User.email == "member@example.com")
+            .first()
+        ):
+            user = User(
+                email="member@example.com",
+                email_confirmed_at=datetime.utcnow(),
+                password=user_manager.hash_password("Password1"),
+            )
+            db.session.add(user)
+            db.session.commit()
+
+        # Create 'admin@example.com' user with 'Admin' and 'Agent' roles
+        if not db.session.query(User).filter(User.email == "admin@example.com").first():
+            user = User(
+                email="admin@example.com",
+                email_confirmed_at=datetime.utcnow(),
+                password=user_manager.hash_password("Password1"),
+            )
+            user.roles.append(Role(name="Admin"))
+            user.roles.append(Role(name="Agent"))
+            db.session.add(user)
+            db.session.commit()

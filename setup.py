@@ -11,7 +11,7 @@ with open('HISTORY.rst') as history_file:
     history = history_file.read()
 
 requirements = [
-        'Click>=7.0', 
+        'Click>=7.0',
         'Flask==1.1.2',
         'authlib',
         'flask_migrate',
@@ -19,6 +19,7 @@ requirements = [
         'flask_login',
         'flask_marshmallow',
         'flask_sqlalchemy',
+        'flask_user',
         'flask_swagger',
         'requests',
         'psycopg2-binary',

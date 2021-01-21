@@ -30,9 +30,25 @@ class Config:
     SQLALCHEMY_DATABASE_URI = SQLALCHEMY_DATABASE_URI
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     OAUTH2_REFRESH_TOKEN_GENERATOR = True
-    MOCK_USER_SERVICE = bool(os.environ.get("MOCK_USER_SERVICE"))
 
-    USER_API_URL = ""
+    # Flask-Mail SMTP server settings
+    MAIL_SERVER = os.environ.get("MAIL_SERVER", "smtp.gmail.com")
+    MAIL_PORT = os.environ.get("MAIL_PORT", 465)
+    MAIL_USE_SSL = os.environ.get("MAIL_USE_SSL", "True") == "True"
+    MAIL_USE_TLS = os.environ.get("MAIL_USE_TLS", "False") == "True"
+    MAIL_USERNAME = os.environ.get("MAIL_USERNAME")
+    MAIL_PASSWORD = os.environ.get("MAIL_PASSWORD")
+    MAIL_DEFAULT_SENDER = os.environ.get("MAIL_DEFAULT_SENDER")
+
+    # Flask-User settings
+    USER_APP_NAME = os.environ.get(
+        "USER_APP_NAME"
+    )  # Shown in and email templates and page footers
+    USER_ENABLE_EMAIL = True  # Enable email authentication
+    USER_ENABLE_USERNAME = False  # Disable username authentication
+    USER_EMAIL_SENDER_NAME = USER_APP_NAME
+    USER_EMAIL_SENDER_EMAIL = os.environ.get("USER_EMAIL_SENDER_EMAIL")
+    # USER_ENABLE_REGISTER = True
 
     @staticmethod
     def init_app(app):

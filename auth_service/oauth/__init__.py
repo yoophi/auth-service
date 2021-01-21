@@ -1,6 +1,11 @@
 from authlib.oauth2 import OAuth2Error
 from flask import (
-    Blueprint, request, jsonify, render_template, redirect, url_for,
+    Blueprint,
+    request,
+    jsonify,
+    render_template,
+    redirect,
+    url_for,
 )
 from flask_login import current_user
 
@@ -30,7 +35,7 @@ def authorize():
         )
         return_url = url_for("oauth2.authorize", **query_string)
 
-        return redirect(url_for("main.login", next=return_url))
+        return redirect(url_for("user.login", next=return_url, reg_next=return_url))
 
     try:
         grant = authorization.validate_consent_request(end_user=user)
