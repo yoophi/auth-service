@@ -1,0 +1,17 @@
+version: '3.7'
+
+services:
+  app:
+    image: 125766221427.dkr.ecr.ap-northeast-2.amazonaws.com/glob/auth:0.1.0
+    ports:
+      - '5000:5000'
+    environment:
+      AUTHLIB_INSECURE_TRANSPORT: ${AUTHLIB_INSECURE_TRANSPORT}
+      DB_DATABASE: ${DB_DATABASE}
+      DB_ENGINE: ${DB_ENGINE}
+      DB_HOST: ${DB_HOST}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_PORT: ${DB_PORT}
+      DB_USER: ${DB_USER}
+      FLASK_ENV: "development"
+      MOCK_USER_SERVICE: "true"

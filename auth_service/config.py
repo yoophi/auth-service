@@ -50,6 +50,17 @@ class Config:
     USER_EMAIL_SENDER_EMAIL = os.environ.get("USER_EMAIL_SENDER_EMAIL")
     # USER_ENABLE_REGISTER = True
 
+    SOCIAL_URL_PREFIX = "/social"
+    SOCIAL_FACEBOOK = {
+        'consumer_key':    os.environ.get('FACEBOOK_CLIENT_ID', 'facebook app id'),
+        'consumer_secret': os.environ.get('FACEBOOK_CLIENT_SECRET','facebook app secret'),
+    }
+
+    SOCIAL_GOOGLE = {
+        'consumer_key': os.environ.get('GOOGLE_CLIENT_ID', 'google app id'),
+        'consumer_secret': os.environ.get('GOOGLE_CLIENT_SECRET', 'google app secret')
+    }
+
     @staticmethod
     def init_app(app):
         pass

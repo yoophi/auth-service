@@ -2,8 +2,9 @@ import flask_login
 from flask import (
     Blueprint,
     render_template,
-    render_template_string,
+    render_template_string, session,
 )
+from flask_login import current_user
 from flask_user import roles_required, login_required
 
 main = Blueprint("main", __name__)
@@ -11,6 +12,8 @@ main = Blueprint("main", __name__)
 
 @main.route("/")
 def index():
+    print(f'session = {session}')
+    print(f'current_user = {current_user}')
     return render_template("index.html")
 
 

@@ -2,12 +2,14 @@ import logging.config
 from datetime import datetime
 
 from flask import Flask
+from flask_social_login import SQLAlchemyConnectionDatastore
 
 from auth_service.database import db, migrate
 from auth_service.extensions import cors, ma
 from auth_service.oauth2 import config_oauth
 from .config import config
-from .models import User, Role
+from .social import social
+from .models import User, Role, Connection
 from .user import user_manager
 
 
@@ -22,8 +24,10 @@ def create_app(config_name="default", settings_override=None):
     init_db(app)
 
     user_manager.init_app(app, db, User)
+    app.extensions['user_manager'] = user_manager
 
     init_extensions(app)
+    init_social(app, db)
 
     if settings_override:
         app.config.update(settings_override)
@@ -85,6 +89,11 @@ def init_extensions(app):
     ma.init_app(app)
 
 
+def init_social(app, db):
+    datastore = SQLAlchemyConnectionDatastore(db, Connection)
+    social.init_app(app, datastore)
+
+
 def init_blueprint(app):
     from auth_service.api import api as api_bp
     from auth_service.oauth import oauth2 as oauth_bp
@@ -105,8 +114,8 @@ def init_commands(app):
         # Create 'member@example.com' user with no roles
         if (
             not db.session.query(User)
-            .filter(User.email == "member@example.com")
-            .first()
+                .filter(User.email == "member@example.com")
+                .first()
         ):
             user = User(
                 email="member@example.com",

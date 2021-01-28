@@ -85,6 +85,13 @@ class User(db.Model, UserMixin):
     def get_user_id(self):
         return self.id
 
+    def get_id(self):
+        return self.id
+
+    @classmethod
+    def get_user_by_token(cls, token):
+        return db.session.query(cls).get(token)
+
 
 # Define the Role data-model
 class Role(db.Model):
@@ -99,3 +106,22 @@ class UserRoles(db.Model):
     id = db.Column(db.Integer(), primary_key=True)
     user_id = db.Column(db.Integer(), db.ForeignKey("users.id", ondelete="CASCADE"))
     role_id = db.Column(db.Integer(), db.ForeignKey("roles.id", ondelete="CASCADE"))
+
+
+class Connection(db.Model):
+    __tablename__ = "connections"
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey(User.id))
+    user = db.relationship(User)
+    provider_id = db.Column(db.String(255))
+    provider_user_id = db.Column(db.String(255))
+    access_token = db.Column(db.String(255))
+    secret = db.Column(db.String(255))
+    display_name = db.Column(db.String(255))
+    full_name = db.Column(db.String(255))
+    email = db.Column(db.String(255))
+    profile_url = db.Column(db.String(512))
+    image_url = db.Column(db.String(512))
+    rank = db.Column(db.Integer)
+

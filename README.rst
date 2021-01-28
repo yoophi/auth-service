@@ -28,6 +28,10 @@ Features
 
 * TODO
 
+  OAuth 2.0 Token Introspection
+
+  <https://tools.ietf.org/html/rfc7662>
+
 Credits
 -------
 
