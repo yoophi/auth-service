@@ -6,6 +6,7 @@ from authlib.integrations.sqla_oauth2 import (
     OAuth2AuthorizationCodeMixin,
 )
 from flask_user import UserMixin
+from sqlalchemy.orm import backref
 
 from auth_service.database import db
 
@@ -81,6 +82,8 @@ class User(db.Model, UserMixin):
 
     # Define the relationship to Role via UserRoles
     roles = db.relationship("Role", secondary="user_roles")
+    # connections = db.relationship("Connection", back_populates="user")
+
 
     def get_user_id(self):
         return self.id
@@ -113,7 +116,7 @@ class Connection(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey(User.id))
-    user = db.relationship(User)
+    user = db.relationship("User", backref=backref("connections"))
     provider_id = db.Column(db.String(255))
     provider_user_id = db.Column(db.String(255))
     access_token = db.Column(db.String(255))
@@ -124,4 +127,7 @@ class Connection(db.Model):
     profile_url = db.Column(db.String(512))
     image_url = db.Column(db.String(512))
     rank = db.Column(db.Integer)
+
+    def __repr__(self):
+        return f'<Connection:{self.id} {self.provider_id}>'
 

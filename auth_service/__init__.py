@@ -24,7 +24,7 @@ def create_app(config_name="default", settings_override=None):
     init_db(app)
 
     user_manager.init_app(app, db, User)
-    app.extensions['user_manager'] = user_manager
+    app.extensions['login_manager'] = user_manager.login_manager
 
     init_extensions(app)
     init_social(app, db)
@@ -90,6 +90,30 @@ def init_extensions(app):
 
 
 def init_social(app, db):
+
+    def wrapper(db, User, Connection):
+        def connection_not_found_handler(response, provider, query, cv):
+            user = User()
+            user.active = True
+            if cv['email']:
+                user.email = cv['email']
+                user.email_confirmed_at = datetime.utcnow()
+
+            db.session.add(user)
+            connection = Connection()
+            connection.user = user
+            for k, v in cv.items():
+                setattr(connection, k, v)
+
+            db.session.add(connection)
+            db.session.commit()
+
+            return connection
+
+        return connection_not_found_handler
+
+    app.config['SOCIAL_CONNECTION_NOT_FOUND_HANDLER'] = wrapper(db, User, Connection)
+
     datastore = SQLAlchemyConnectionDatastore(db, Connection)
     social.init_app(app, datastore)
 

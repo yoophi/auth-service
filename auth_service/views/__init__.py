@@ -12,8 +12,6 @@ main = Blueprint("main", __name__)
 
 @main.route("/")
 def index():
-    print(f'session = {session}')
-    print(f'current_user = {current_user}')
     return render_template("index.html")
 
 
