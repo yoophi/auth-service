@@ -32,6 +32,8 @@ def authorize():
             client_id=request.args.get("client_id", ""),
             response_type=request.args.get("response_type", ""),
             scope=request.args.get("scope", ""),
+            redirect_uri=request.args.get("redirect_uri", ""),
+            nonce=request.args.get("nonce", ""),
         )
         return_url = url_for("oauth2.authorize", **query_string)
 
@@ -78,6 +80,6 @@ def revoke_token():
     return authorization.create_endpoint_response(RevocationEndpoint.ENDPOINT_NAME)
 
 
-@oauth2.route("/introspect", methods=["POST"])
+@oauth2.route("/token/introspect", methods=["POST"])
 def introspect_token():
     return authorization.create_endpoint_response(IntrospectionEndpoint.ENDPOINT_NAME)

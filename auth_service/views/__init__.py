@@ -2,7 +2,8 @@ import flask_login
 from flask import (
     Blueprint,
     render_template,
-    render_template_string, session,
+    render_template_string,
+    session,
 )
 from flask_login import current_user
 from flask_user import roles_required, login_required

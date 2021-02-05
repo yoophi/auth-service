@@ -1,4 +1,5 @@
 import time
+import os
 
 from authlib.integrations.flask_oauth2 import AuthorizationServer, ResourceProtector
 from authlib.integrations.sqla_oauth2 import (
@@ -27,10 +28,10 @@ from auth_service.database import db
 from auth_service.models import OAuth2Client, OAuth2AuthorizationCode, OAuth2Token, User
 from auth_service.user import user_manager
 
-DUMMY_JWT_CONFIG = {
-    "key": "secret-key",
+JWT_CONFIG = {
+    "key": os.environ.get("OAUTH2_JWT_SECRET_KEY", "secret-key"),
     "alg": "HS256",
-    "iss": "https://authlib.org",
+    "iss": os.environ.get("OAUTH2_JWT_ISS", "https://authlib.org"),
     "exp": 3600,
 }
 
@@ -45,7 +46,7 @@ def exists_nonce(nonce, req):
 
 
 def generate_user_info(user, scope):
-    return UserInfo(sub=str(user.id), name=user.username)
+    return UserInfo(sub=str(user.id), name=user.email)
 
 
 def create_authorization_code(client, grant_user, request):
@@ -136,7 +137,7 @@ class OpenIDCode(_OpenIDCode):
         return exists_nonce(nonce, request)
 
     def get_jwt_config(self, grant):
-        return DUMMY_JWT_CONFIG
+        return JWT_CONFIG
 
     def generate_user_info(self, user, scope):
         return generate_user_info(user, scope)
@@ -168,7 +169,7 @@ class ImplicitGrant(_OpenIDImplicitGrant):
         return exists_nonce(nonce, request)
 
     def get_jwt_config(self, grant):
-        return DUMMY_JWT_CONFIG
+        return JWT_CONFIG
 
     def generate_user_info(self, user, scope):
         return generate_user_info(user, scope)
@@ -182,7 +183,7 @@ class HybridGrant(_OpenIDHybridGrant):
         return exists_nonce(nonce, request)
 
     def get_jwt_config(self):
-        return DUMMY_JWT_CONFIG
+        return JWT_CONFIG
 
     def generate_user_info(self, user, scope):
         return generate_user_info(user, scope)

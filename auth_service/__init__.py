@@ -24,7 +24,7 @@ def create_app(config_name="default", settings_override=None):
     init_db(app)
 
     user_manager.init_app(app, db, User)
-    app.extensions['login_manager'] = user_manager.login_manager
+    app.extensions["login_manager"] = user_manager.login_manager
 
     init_extensions(app)
     init_social(app, db)
@@ -90,13 +90,12 @@ def init_extensions(app):
 
 
 def init_social(app, db):
-
     def wrapper(db, User, Connection):
-        def connection_not_found_handler(response, provider, query, cv):
+        def connection_not_found_handler(cv):
             user = User()
             user.active = True
-            if cv['email']:
-                user.email = cv['email']
+            if cv["email"]:
+                user.email = cv["email"]
                 user.email_confirmed_at = datetime.utcnow()
 
             db.session.add(user)
@@ -112,7 +111,7 @@ def init_social(app, db):
 
         return connection_not_found_handler
 
-    app.config['SOCIAL_CONNECTION_NOT_FOUND_HANDLER'] = wrapper(db, User, Connection)
+    app.config["SOCIAL_CONNECTION_NOT_FOUND_HANDLER"] = wrapper(db, User, Connection)
 
     datastore = SQLAlchemyConnectionDatastore(db, Connection)
     social.init_app(app, datastore)
@@ -138,8 +137,8 @@ def init_commands(app):
         # Create 'member@example.com' user with no roles
         if (
             not db.session.query(User)
-                .filter(User.email == "member@example.com")
-                .first()
+            .filter(User.email == "member@example.com")
+            .first()
         ):
             user = User(
                 email="member@example.com",

@@ -29,7 +29,10 @@ class Config:
 
     SQLALCHEMY_DATABASE_URI = SQLALCHEMY_DATABASE_URI
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+
     OAUTH2_REFRESH_TOKEN_GENERATOR = True
+    OAUTH2_JWT_SECRET_KEY = os.environ.get("OAUTH2_JWT_SECRET_KEY", "secret-key")
+    OAUTH2_JWT_ISS = os.environ.get("OAUTH2_JWT_ISS", "https://authlib.org")
 
     # Flask-Mail SMTP server settings
     MAIL_SERVER = os.environ.get("MAIL_SERVER", "smtp.gmail.com")
@@ -50,15 +53,19 @@ class Config:
     USER_EMAIL_SENDER_EMAIL = os.environ.get("USER_EMAIL_SENDER_EMAIL")
     # USER_ENABLE_REGISTER = True
 
+    SOCIAL_AUTO_REGISTER_USER = True
     SOCIAL_URL_PREFIX = "/social"
+    SOCIAL_USE_HTTPS = os.environ.get("SOCIAL_USE_HTTPS", "False") == "True"
     SOCIAL_FACEBOOK = {
-        'consumer_key':    os.environ.get('FACEBOOK_CLIENT_ID', 'facebook app id'),
-        'consumer_secret': os.environ.get('FACEBOOK_CLIENT_SECRET','facebook app secret'),
+        "consumer_key": os.environ.get("FACEBOOK_CLIENT_ID", "facebook app id"),
+        "consumer_secret": os.environ.get(
+            "FACEBOOK_CLIENT_SECRET", "facebook app secret"
+        ),
     }
 
     SOCIAL_GOOGLE = {
-        'consumer_key': os.environ.get('GOOGLE_CLIENT_ID', 'google app id'),
-        'consumer_secret': os.environ.get('GOOGLE_CLIENT_SECRET', 'google app secret')
+        "consumer_key": os.environ.get("GOOGLE_CLIENT_ID", "google app id"),
+        "consumer_secret": os.environ.get("GOOGLE_CLIENT_SECRET", "google app secret"),
     }
 
     @staticmethod

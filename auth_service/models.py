@@ -58,8 +58,8 @@ class User(db.Model, UserMixin):
         db.String(
             255,
         ),
-        nullable=False,
-        unique=True,
+        nullable=True,
+        unique=False,
     )
     email_confirmed_at = db.Column(db.DateTime())
     password = db.Column(db.String(255), nullable=False, server_default="")
@@ -82,8 +82,6 @@ class User(db.Model, UserMixin):
 
     # Define the relationship to Role via UserRoles
     roles = db.relationship("Role", secondary="user_roles")
-    # connections = db.relationship("Connection", back_populates="user")
-
 
     def get_user_id(self):
         return self.id
@@ -129,5 +127,4 @@ class Connection(db.Model):
     rank = db.Column(db.Integer)
 
     def __repr__(self):
-        return f'<Connection:{self.id} {self.provider_id}>'
-
+        return f"<Connection:{self.id} {self.provider_id}>"

@@ -11,19 +11,22 @@ with open('HISTORY.rst') as history_file:
     history = history_file.read()
 
 requirements = [
-        'Click>=7.0',
-        'Flask==1.1.2',
-        'authlib',
-        'flask_migrate',
-        'flask_cors',
-        'flask_login',
-        'flask_marshmallow',
-        'flask_sqlalchemy',
-        'flask_user',
-        'flask_swagger',
-        'requests',
-        'psycopg2-binary',
-        ]
+    "Click>=7.0",
+    "Flask==1.1.2",
+    "authlib==0.15.3",
+    "email_validator",
+    "flask_migrate",
+    "flask_cors",
+    "flask_login",
+    "flask_marshmallow",
+    "flask_sqlalchemy",
+    "flask_user",
+    "flask_swagger",
+    "google-api-core==1.25.1",
+    "requests",
+    "psycopg2-binary",
+    "flask-social-login==0.2.2",
+]
 
 setup_requirements = ['pytest-runner', ]
 
