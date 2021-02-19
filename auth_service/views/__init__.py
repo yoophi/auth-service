@@ -60,3 +60,8 @@ def admin_page():
             {% endblock %}
             """
     )
+
+@main.route('/profile')
+@flask_login.login_required
+def profile():
+    return render_template('profile.html')

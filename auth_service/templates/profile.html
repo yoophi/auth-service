@@ -1,0 +1,29 @@
+{% extends 'layouts/bootstrap-with-nav.html' %}
+
+{% block title %}index{% endblock %}
+
+{% block styles %}
+    {{ super() }}
+    <!-- Custom styles for this template -->
+    <link href="/static/css/starter-template.css" rel="stylesheet">
+{% endblock %}
+
+{% block main %}
+
+<div>
+<h3>회원 정보</h3>
+    <ul>
+        <li>회원 번호:
+            {{ current_user.id }}
+        </li>
+        <li>Email:
+            {% if current_user.email %}
+            {{ current_user.email }}
+            {% else %}
+            미입력
+            {% endif %}
+        </li>
+    </ul>
+</div>
+
+{% endblock %}
