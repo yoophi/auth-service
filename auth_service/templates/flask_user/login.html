@@ -1,82 +1,89 @@
 {% extends 'flask_user/_public_base.html' %}
 
 {% block content %}
-    {% from "flask_user/_macros.html" import render_field, render_checkbox_field, render_submit_field %}
-    <h1>{% trans %}Sign in{% endtrans %}</h1>
-
-    <h2>소셜 계정으로 로그인</h2>
-
     {% macro social_login(provider_id, display_name) %}
         <div style="margin-bottom: 0.5em">
-
             <form action="{{ url_for('social.login', provider_id=provider_id) }}" method="POST">
-                <input type="hidden" name="next" value="{{ request.args['next'] }}" />
-                <input type="submit" value="Login with {{ display_name }}" class="btn btn-outline-primary"/>
+                <input type="hidden" name="next" value="{{ request.args.get('next', '/') }}"/>
+                <input type="submit" value="{{ display_name }} 계정으로 로그인" class="btn btn-outline-primary"/>
             </form>
         </div>
     {% endmacro %}
 
-    {{ social_login('facebook', 'Facebook' ) }}
-    {{ social_login('google', 'Google' ) }}
+    {% from "flask_user/_macros.html" import render_field, render_checkbox_field, render_submit_field %}
+    <div class="row">
+        <div class="col-md-12">
+            <h1>{% trans %}Sign in{% endtrans %}</h1>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-6">
+            <form action="" method="POST" class="form" role="form">
+                {{ form.hidden_tag() }}
 
-    <hr/>
-
-    <form action="" method="POST" class="form" role="form">
-        {{ form.hidden_tag() }}
-
-        {# Username or Email field #}
-        {% set field = form.username if user_manager.USER_ENABLE_USERNAME else form.email %}
-        <div class="form-group {% if field.errors %}has-error{% endif %}">
-            {# Label on left, "New here? Register." on right #}
-            <div class="row">
-                <div class="col-xs-6">
-                    <label for="{{ field.id }}" class="control-label">{{ field.label.text }}</label>
-                </div>
-                <div class="col-xs-6 text-right">
-                    {% if user_manager.USER_ENABLE_REGISTER and not user_manager.USER_REQUIRE_INVITATION %}
-                        <a href="{{ url_for('user.register') }}" tabindex='190'>
-                            {% trans %}New here? Register.{% endtrans %}</a>
+                {# Username or Email field #}
+                {% set field = form.username if user_manager.USER_ENABLE_USERNAME else form.email %}
+                <div class="form-group {% if field.errors %}has-error{% endif %}">
+                    {# Label on left, "New here? Register." on right #}
+                    <div class="row">
+                        <div class="col-xs-6">
+                            <label for="{{ field.id }}" class="control-label">{{ field.label.text }}</label>
+                        </div>
+                        <div class="col-xs-6 text-right">
+                            {% if user_manager.USER_ENABLE_REGISTER and not user_manager.USER_REQUIRE_INVITATION %}
+                                <a href="{{ url_for('user.register') }}" tabindex='190'>
+                                    {% trans %}New here? Register.{% endtrans %}</a>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {{ field(class_='form-control', tabindex=110) }}
+                    {% if field.errors %}
+                        {% for e in field.errors %}
+                            <p class="help-block">{{ e }}</p>
+                        {% endfor %}
                     {% endif %}
                 </div>
-            </div>
-            {{ field(class_='form-control', tabindex=110) }}
-            {% if field.errors %}
-                {% for e in field.errors %}
-                    <p class="help-block">{{ e }}</p>
-                {% endfor %}
-            {% endif %}
-        </div>
 
-        {# Password field #}
-        {% set field = form.password %}
-        <div class="form-group {% if field.errors %}has-error{% endif %}">
-            {# Label on left, "Forgot your Password?" on right #}
-            <div class="row">
-                <div class="col-xs-6">
-                    <label for="{{ field.id }}" class="control-label">{{ field.label.text }}</label>
-                </div>
-                <div class="col-xs-6 text-right">
-                    {% if user_manager.USER_ENABLE_FORGOT_PASSWORD %}
-                        <a href="{{ url_for('user.forgot_password') }}" tabindex='195'>
-                            {% trans %}Forgot your Password?{% endtrans %}</a>
+                {# Password field #}
+                {% set field = form.password %}
+                <div class="form-group {% if field.errors %}has-error{% endif %}">
+                    {# Label on left, "Forgot your Password?" on right #}
+                    <div class="row">
+                        <div class="col-xs-6">
+                            <label for="{{ field.id }}" class="control-label">{{ field.label.text }}</label>
+                        </div>
+                        <div class="col-xs-6 text-right">
+                            {% if user_manager.USER_ENABLE_FORGOT_PASSWORD %}
+                                <a href="{{ url_for('user.forgot_password') }}" tabindex='195'>
+                                    {% trans %}Forgot your Password?{% endtrans %}</a>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {{ field(class_='form-control', tabindex=120) }}
+                    {% if field.errors %}
+                        {% for e in field.errors %}
+                            <p class="help-block">{{ e }}</p>
+                        {% endfor %}
                     {% endif %}
                 </div>
-            </div>
-            {{ field(class_='form-control', tabindex=120) }}
-            {% if field.errors %}
-                {% for e in field.errors %}
-                    <p class="help-block">{{ e }}</p>
-                {% endfor %}
-            {% endif %}
+
+                {# Remember me #}
+                {% if user_manager.USER_ENABLE_REMEMBER_ME %}
+                    {{ render_checkbox_field(login_form.remember_me, tabindex=130) }}
+                {% endif %}
+
+                {# Submit button #}
+                {{ render_submit_field(form.submit, tabindex=180) }}
+            </form>
         </div>
 
-        {# Remember me #}
-        {% if user_manager.USER_ENABLE_REMEMBER_ME %}
-            {{ render_checkbox_field(login_form.remember_me, tabindex=130) }}
-        {% endif %}
+        <div class="col-md-6">
+            <h3>소셜 계정으로 로그인</h3>
 
-        {# Submit button #}
-        {{ render_submit_field(form.submit, tabindex=180) }}
-    </form>
+            {{ social_login('facebook', 'Facebook' ) }}
+            {{ social_login('google', 'Google' ) }}
+        </div>
+
+    </div>
 
 {% endblock %}

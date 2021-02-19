@@ -10,58 +10,75 @@
 
 {% block main %}
     <h1>Home page</h1>
-    <h2>현재 사용자</h2>
-    <div class="row">
-        <div class="col-md-12">
-            {% if not current_user.is_anonymous %}
-                <pre>회원 번호 = {{ current_user.id }}</pre>
-                <pre>등록된 소셜 계정 로그인 = {{ current_user.connections }}</pre>
-            {% else %}
-                <p>현재 로그인 중이 아님.</p>
-            {% endif %}
-            <hr/>
+
+    {% if not current_user.is_anonymous %}
+        {# 로그인 중일 때 #}
+        <div class="row">
+            <div class="col-md-12">
+
+                <h2>{{ '회원:{}'.format(current_user.id) }}님 안녕하세요!</h2>
+                <div class="row">
+                    <div class="col-md-12">
+                        {% if not current_user.is_anonymous %}
+                            <pre>회원 번호 = {{ current_user.id }}</pre>
+                            <pre>등록된 소셜 계정 로그인 = {{ current_user.connections }}</pre>
+                        {% else %}
+                            <p>현재 로그인 중이 아님.</p>
+                        {% endif %}
+                        <hr/>
+                    </div>
+                </div>
+            </div>
         </div>
-    </div>
-    <div class="row">
-        <div class="col-md-12">
-            <h2>로그인</h2>
+        <div class="row">
+            <div class="col-md-12">
+                {% macro social_connect(provider_id, display_name) %}
+                    <form action="{{ url_for('social.connect', provider_id=provider_id) }}" method="POST">
+                        <p style="margin-bottom: 0.5em">
+                            <input type="submit"
+                                   value="{{ display_name }} 계정 연동하기"
+                                   class="btn btn-outline-primary"/></p>
+                    </form>
+                {% endmacro %}
+
+                {{ social_connect('facebook', 'Facebook' ) }}
+                {{ social_connect('google', 'Google' ) }}
+            </div>
         </div>
+    {% else %}
+        {# 로그인 중이 아닐 때 #}
+        <div class="row">
+            <div class="col-md-6">
+                <h2>로그인</h2>
+                <p>
+                    <a class="btn btn-outline-primary" href={{ url_for('user.login') }}>{% trans %}Email 과 비밀번호로 로그인{% endtrans %}</a>
+                </p>
+                <h4>소셜 계정으로 로그인</h4>
+                {% macro social_login(provider_id, display_name) %}
+                    <form action="{{ url_for('social.login', provider_id=provider_id) }}" method="POST">
+                        <p style="margin-bottom: 0.5em">
+                            <input type="submit"
+                                   value="{{ display_name }} 계정으로 로그인하기"
+                                   class="btn btn-outline-primary"/></p>
+                    </form>
+                {% endmacro %}
+
+                {{ social_login('facebook', 'Facebook' ) }}
+                {{ social_login('google', 'Google' ) }}
+            </div>
         <div class="col-md-6">
-            <h3>로그인 전</h3>
-            <p>
-                <a class="btn btn-outline-primary" href={{ url_for('user.register') }}>{% trans %}회원
-                    가입{% endtrans %}</a>
-                <a class="btn btn-outline-primary" href={{ url_for('user.login') }}>{% trans %}로그인{% endtrans %}</a>
-            </p>
-            <h4>소셜 계정으로 로그인</h4>
-            {% macro social_login(provider_id, display_name) %}
-                <form action="{{ url_for('social.login', provider_id=provider_id) }}" method="POST">
-                    <p style="margin-bottom: 0.5em"><input type="submit" value="Login with {{ display_name }}"
-                                                           class="btn btn-outline-primary"/></p>
-                </form>
-            {% endmacro %}
+            <div class="col-md-6">
+                <h2>회원 가입</h2>
+                <p>
+                    <a class="btn btn-outline-primary" href={{ url_for('user.register') }}>{% trans %}회원
+                        가입{% endtrans %}</a>
+                </p>
+            </div>
 
-            {{ social_login('facebook', 'Facebook' ) }}
-            {{ social_login('google', 'Google' ) }}
         </div>
-        <div class="col-md-6">
-            <h3>로그인 후</h3>
-            <p><a class="btn btn-outline-primary" href={{ url_for('user.logout') }}>{% trans %}Sign
-                out{% endtrans %}</a></p>
+        </div>
+    {% endif %}
 
-            {% macro social_connect(provider_id, display_name) %}
-                <form action="{{ url_for('social.connect', provider_id=provider_id) }}" method="POST">
-                    <p style="margin-bottom: 0.5em"><input type="submit" value="Connect with {{ display_name }}"
-                                                           class="btn btn-outline-primary"/></p>
-                </form>
-            {% endmacro %}
 
-            {{ social_connect('facebook', 'Facebook' ) }}
-            {{ social_connect('google', 'Google' ) }}
-        </div>
-        <div class="col-md-12">
-            <hr/>
-        </div>
-    </div>
 
 {% endblock %}
