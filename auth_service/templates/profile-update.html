@@ -1,0 +1,44 @@
+{% extends 'layouts/bootstrap-with-nav.html' %}
+
+{% from "./flask_user/_macros.html" import render_field, render_submit_field %}
+
+
+{% block title %}index{% endblock %}
+
+{% block styles %}
+    {{ super() }}
+    <!-- Custom styles for this template -->
+    <link href="/static/css/starter-template.css" rel="stylesheet">
+{% endblock %}
+
+{% block main %}
+
+    <div class="row">
+        <div class="col-md-12 position-relative">
+            <h3>회원 정보 수정</h3>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <form action="" method="POST" class="form" role="form">
+
+                {{ form.hidden_tag() }}
+
+                <div class="form-group">
+                    <label class="control-label">성별</label>
+                    <div>
+                        {% for subfield in form.gender %}
+                            <div class="form-check form-check-inline">{{ subfield }} <label
+                                    class="form-check-label">{{ subfield.label }}</label></div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {{ render_field(form.country, tabindex=230) }}
+                {{ render_field(form.language, tabindex=240) }}
+                {{ render_submit_field(form.submit, tabindex=250) }}
+
+            </form>
+        </div>
+    </div>
+
+{% endblock %}
