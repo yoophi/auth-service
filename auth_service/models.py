@@ -83,6 +83,28 @@ class User(db.Model, UserMixin):
     # Define the relationship to Role via UserRoles
     roles = db.relationship("Role", secondary="user_roles")
 
+    country = db.Column(
+        db.String(
+            100,
+        ),
+        nullable=False,
+        server_default="",
+    )
+    language = db.Column(
+        db.String(
+            100,
+        ),
+        nullable=False,
+        server_default="",
+    )
+    gender = db.Column(
+        db.String(
+            1,
+        ),
+        nullable=False,
+        server_default="",
+    )
+
     def get_user_id(self):
         return self.id
 
