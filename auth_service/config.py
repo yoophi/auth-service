@@ -1,6 +1,9 @@
 import os
 
 APP_DIR = os.path.dirname(__file__)
+BASE_POSTCSS_BIN = os.path.join(
+    os.path.dirname(APP_DIR), "node_modules/postcss-cli/bin/postcss"
+)
 
 DEFAULT_SECRET_KEY = "Uphooh4CheiQuoosez8Shieb9aesu1taeHa6cheiThuud2taijoh0kei2ush2sie"
 
@@ -26,6 +29,9 @@ SQLALCHEMY_DATABASE_URI = (
 
 class Config:
     SECRET_KEY = os.environ.get("SECRET_KEY") or DEFAULT_SECRET_KEY
+
+    ASSETS_DEBUG = (os.environ.get("ASSETS_DEBUG", "False") == "True")
+    POSTCSS_BIN = os.environ.get("POSTCSS_BIN", BASE_POSTCSS_BIN)
 
     SQLALCHEMY_DATABASE_URI = SQLALCHEMY_DATABASE_URI
     SQLALCHEMY_TRACK_MODIFICATIONS = False

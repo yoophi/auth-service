@@ -8,6 +8,10 @@
     <meta name="generator" content="Hugo 0.79.0">
     <title>{% block title %}Starter Template · Bootstrap v5.0{% endblock %}</title>
 
+    {% assets 'css_all' %}
+    <link rel="stylesheet" href="{{ ASSET_URL }}"></link>
+    {% endassets %}
+
     {% block styles %}
     <!-- Bootstrap core CSS -->
     <link href="/static/css/bootstrap.min.css" rel="stylesheet"

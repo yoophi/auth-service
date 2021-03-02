@@ -3,9 +3,10 @@ from datetime import datetime
 
 from flask import Flask
 from flask_social_login import SQLAlchemyConnectionDatastore
+from flask_assets import Bundle
 
 from auth_service.database import db, migrate
-from auth_service.extensions import cors, ma
+from auth_service.extensions import assets, cors, ma
 from auth_service.oauth2 import config_oauth
 from .config import config
 from .social import social
@@ -26,6 +27,7 @@ def create_app(config_name="default", settings_override=None):
     user_manager.init_app(app, db, User)
     app.extensions["login_manager"] = user_manager.login_manager
 
+    init_assets(app)
     init_extensions(app)
     init_social(app, db)
 
@@ -37,6 +39,13 @@ def create_app(config_name="default", settings_override=None):
     config_oauth(app)
 
     return app
+
+
+def init_assets(app):
+    assets.init_app(app)
+    css_all = Bundle("src/css/*.css", filters="postcss", output="dist/css/main.css")
+
+    assets.register("css_all", css_all)
 
 
 def init_logging():

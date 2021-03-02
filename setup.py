@@ -26,6 +26,7 @@ requirements = [
     "requests",
     "psycopg2-binary",
     "flask-social-login==0.2.2",
+    "Flask-Assets==2.0",
 ]
 
 setup_requirements = ['pytest-runner', ]
