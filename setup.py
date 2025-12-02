@@ -11,41 +11,41 @@ with open('HISTORY.rst') as history_file:
     history = history_file.read()
 
 requirements = [
-    "Click>=7.0",
-    "Flask==1.1.2",
-    "authlib==0.15.3",
-    "email_validator",
-    "flask_migrate",
-    "flask_cors",
-    "flask_login",
-    "flask_marshmallow",
-    "flask_sqlalchemy",
-    "flask_user",
-    "flask_swagger",
-    "google-api-core==1.25.1",
-    "requests",
-    "psycopg2-binary",
-    "flask-social-login==0.2.2",
+    "Click>=8.0",
+    "Flask>=3.0,<4.0",
+    "authlib>=1.0,<2.0",
+    "email-validator>=2.0",
+    "Flask-Migrate>=4.0",
+    "Flask-Cors>=6.0",
+    "Flask-Login>=0.6",
+    "Flask-Marshmallow>=1.0",
+    "Flask-SQLAlchemy>=3.0",
+    "Flask-Swagger>=0.2.14",
+    "google-api-core>=2.0,<3.0",
+    "requests>=2.28",
+    "psycopg2-binary>=2.9",
+    "flask-social-login>=0.2.2",
 ]
 
-setup_requirements = ['pytest-runner', ]
+setup_requirements = ['pytest-runner>=6.0', ]
 
-test_requirements = ['pytest>=3', ]
+test_requirements = ['pytest>=8.0', ]
 
 setup(
     author="Pyunghyuk Yoo",
     author_email='yoophi@gmail.com',
-    python_requires='>=3.5',
+    python_requires='>=3.9',
     classifiers=[
         'Development Status :: 2 - Pre-Alpha',
         'Intended Audience :: Developers',
         'License :: OSI Approved :: MIT License',
         'Natural Language :: English',
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.5',
-        'Programming Language :: Python :: 3.6',
-        'Programming Language :: Python :: 3.7',
-        'Programming Language :: Python :: 3.8',
+        'Programming Language :: Python :: 3.9',
+        'Programming Language :: Python :: 3.10',
+        'Programming Language :: Python :: 3.11',
+        'Programming Language :: Python :: 3.12',
+        'Programming Language :: Python :: 3.13',
     ],
     description="Python Boilerplate contains all the boilerplate you need to create a Python package.",
     entry_points={
